@@ -1,0 +1,18 @@
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\DriverPack Fetcher.csproj.AssemblyReference.cache
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\GUI2_MarkupCompile.cache
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\GUI2.exe
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\GUI2.pdb
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\MainWindow.g.cs
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\GUI2_MarkupCompile.lref
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\Resources\Dell-Drivers.ps1
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\Resources\Lenovo-Drivers.ps1
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\Resources\DriverPackCatalog.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\GUI2.exe.config
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\GUI2.exe
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\GUI2.pdb
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\App.g.cs
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\MainWindow.baml
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\GUI2.g.resources
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\GUI2.Properties.Resources.resources
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\DriverPack Fetcher.csproj.GenerateResource.cache
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\DriverPack Fetcher.csproj.CoreCompileInputs.cache
