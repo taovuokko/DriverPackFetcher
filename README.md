@@ -1,6 +1,6 @@
 # Driver and Firmware Download Utility
 
-This project provides a PowerShell-based utility for downloading and managing drivers and firmware for Dell, Lenovo, and HP devices. The current implementation supports Dell, Lenovo, and HP, with plans to add more manufacturers in future versions. **Please note that this project is currently in the alpha stage.**
+This project provides a PowerShell-based utility for downloading and managing drivers and firmware for Dell, Lenovo, and HP devices. The current implementation supports Dell, Lenovo, and HP, with plans to add more manufacturers in future versions. **Please note that this project is currently in the pre-alpha stage.**
 
 ## Features
 - **Dell Drivers Download**: Automates the process of finding and downloading the latest drivers for Dell models.
