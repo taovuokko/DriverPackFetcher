@@ -8,6 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("resources/driverpackcatalog.xml")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("resources/config.json")]
 
 

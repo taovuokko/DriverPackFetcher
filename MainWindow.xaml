@@ -76,21 +76,24 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,10,0,10" HorizontalAlignment="Center" Width="145">
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="145,10,0,10" HorizontalAlignment="Left" Width="365">
             <RadioButton x:Name="radioButtonLenovo" Content="Lenovo" FontFamily="{StaticResource MononokiBold}" Foreground="{StaticResource HighlightTextBrush}" GroupName="Manufacturer" Margin="10"/>
             <RadioButton x:Name="radioButtonDell" Content="Dell" FontFamily="{StaticResource MononokiBold}" Foreground="{StaticResource HighlightTextBrush}" GroupName="Manufacturer" Margin="10"/>
+            <RadioButton x:Name="radioButtonHP" Content="HP" FontFamily="{StaticResource MononokiBold}" Foreground="{StaticResource HighlightTextBrush}" GroupName="Manufacturer" Margin="10" Width="76"/>
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,10,0,10" HorizontalAlignment="Center" Width="395">
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="68,10,0,10" HorizontalAlignment="Left" Width="396">
             <RadioButton x:Name="radioButtonSingleModel" Content="Yksittäinen malli" FontFamily="{StaticResource MononokiBold}" Foreground="{StaticResource HighlightTextBrush}" GroupName="ModelType" Checked="ModelType_Checked" Margin="10"/>
             <RadioButton x:Name="radioButtonCsvModel" Content="Useampi malli .csv tiedostosta" FontFamily="{StaticResource MononokiBold}" Foreground="{StaticResource HighlightTextBrush}" GroupName="ModelType" Checked="ModelType_Checked" Margin="10"/>
         </StackPanel>
 
         <TextBox x:Name="modelNameTextBox" Style="{StaticResource RoundedTextBox}" TextWrapping="Wrap" Text="Syötä mallin nimi" Grid.Row="2" Margin="0,10,0,10" GotFocus="ModelNameTextBox_GotFocus" LostFocus="ModelNameTextBox_LostFocus" HorizontalAlignment="Center" MaxWidth="300" Width="261"/>
 
-        <CheckBox x:Name="checkBoxFirmware" Content="Sisällytä Firmware päivitykset" Grid.Row="3" Margin="0,10,0,10" HorizontalAlignment="Center" IsChecked="True" FontFamily="{StaticResource MononokiBold}" Foreground="{StaticResource HighlightTextBrush}" Width="231" />
+        <CheckBox x:Name="checkBoxFirmware" Content="Sisällytä Firmware päivitykset" Grid.Row="3" Margin="0,10,0,10" HorizontalAlignment="Center" IsChecked="True" FontFamily="{StaticResource MononokiBold}" Foreground="{StaticResource HighlightTextBrush}" Width="225"/>
 
         <Button x:Name="searchButton" Content="Hae!" Grid.Row="4" Style="{StaticResource RoundedButton}" Click="SearchButton_Click" HorizontalAlignment="Center" MaxWidth="150" Width="72" Margin="0,17,0,1"/>
+
+        <Button x:Name="resetButton" Content="Aloita alusta" Grid.Row="4" Style="{StaticResource RoundedButton}" Click="ResetButton_Click" HorizontalAlignment="Center" MaxWidth="250" Width="200" FontSize="16" Margin="0,17,0,1" Visibility="Collapsed"/>
 
         <TextBox x:Name="outputTextBox" Grid.Row="5" Grid.Column="0" Margin="10,10,10,10" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Visibility="Collapsed" Background="{StaticResource TextBoxBackgroundBrush}" Foreground="{StaticResource TextBoxForegroundBrush}" FontFamily="{StaticResource MononokiRegular}" FontSize="14" IsReadOnly="True"/>
     </Grid>

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,9 +14,56 @@ namespace GUI2
 {
     public partial class MainWindow : Window
     {
+        private Process powerShellProcess;
+        private JsonElement config;
+
         public MainWindow()
         {
             InitializeComponent();
+            this.Closing += new System.ComponentModel.CancelEventHandler(Window_Closing);
+            LoadConfiguration();
+        }
+
+        private void LoadConfiguration()
+        {
+            try
+            {
+                string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "config.json");
+                if (!File.Exists(configPath))
+                {
+                    throw new FileNotFoundException("Configuration file not found.", configPath);
+                }
+
+                string json = File.ReadAllText(configPath);
+                config = JsonSerializer.Deserialize<JsonElement>(json);
+
+                if (config.ValueKind == JsonValueKind.Undefined || config.ValueKind == JsonValueKind.Null)
+                {
+                    throw new Exception("Failed to deserialize configuration file.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Application.Current.Shutdown();
+            }
+        }
+
+        private string GetConfigValue(string section, string key)
+        {
+            if (config.TryGetProperty(section, out JsonElement sectionElement) && sectionElement.TryGetProperty(key, out JsonElement value))
+            {
+                switch (value.ValueKind)
+                {
+                    case JsonValueKind.String:
+                        return value.GetString();
+                    case JsonValueKind.Number:
+                        return value.GetInt32().ToString();
+                    default:
+                        throw new Exception($"Configuration key '{key}' found in section '{section}' but is not a valid type.");
+                }
+            }
+            throw new Exception($"Configuration key '{key}' not found in section '{section}'.");
         }
 
         private void ModelNameTextBox_GotFocus(object sender, RoutedEventArgs e)
@@ -62,13 +110,17 @@ namespace GUI2
                 {
                     AppendOutput("Dell selected");
                 }
+                else if (radioButton.Name == "radioButtonHP")
+                {
+                    AppendOutput("HP selected");
+                }
             }
         }
 
         private async void SearchButton_Click(object sender, RoutedEventArgs e)
         {
+            string sectionName = null;
             string driverScriptName = null;
-            string firmwareScriptName = null;
             string modelName = null;
             string csvPath = null;
             bool includeFirmware = false;
@@ -76,8 +128,29 @@ namespace GUI2
             // Access UI elements using Dispatcher.Invoke
             Dispatcher.Invoke(() =>
             {
-                driverScriptName = radioButtonLenovo.IsChecked == true ? "Lenovo-Drivers.ps1" : "Dell-Drivers.ps1";
-                firmwareScriptName = "Download-Lenovo-Firmware.ps1";
+                if (radioButtonLenovo.IsChecked == true)
+                {
+                    sectionName = "Lenovo";
+                }
+                else if (radioButtonDell.IsChecked == true)
+                {
+                    sectionName = "Dell";
+                }
+                else if (radioButtonHP.IsChecked == true)
+                {
+                    sectionName = "HP";
+                }
+
+                try
+                {
+                    driverScriptName = GetConfigValue(sectionName, "DriverScriptName");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error reading script names: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
                 modelName = radioButtonSingleModel.IsChecked == true ? modelNameTextBox.Text : null;
                 includeFirmware = checkBoxFirmware.IsChecked == true;
             });
@@ -106,33 +179,31 @@ namespace GUI2
             HideInputElements();
             outputTextBox.Visibility = Visibility.Visible;
 
-            string driverDownloadPath = Path.Combine(Path.GetTempPath(), "LenovoDrivers");
-            string firmwareDownloadPath = Path.Combine(Path.GetTempPath(), "LenovoFirmware");
-            string networkPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "LocalLenovo");
+            string driverDownloadPath = Path.Combine(Path.GetTempPath(), $"{sectionName}Drivers");
+            string networkPath = GetConfigValue(sectionName, "NetworkPath");
 
             // Run driver script
-            await Task.Run(() => RunPowerShellScript(driverScriptName, modelName, driverDownloadPath, networkPath, csvPath, false));
-
-            // Run firmware script if IncludeFirmware is checked
-            if (includeFirmware)
-            {
-                await Task.Run(() => RunPowerShellScript(firmwareScriptName, modelName, firmwareDownloadPath, networkPath, csvPath, true));
-            }
+            await Task.Run(() => RunPowerShellScript(driverScriptName, modelName, driverDownloadPath, networkPath, csvPath, includeFirmware));
         }
+
 
         private void HideInputElements()
         {
             radioButtonLenovo.Visibility = Visibility.Collapsed;
             radioButtonDell.Visibility = Visibility.Collapsed;
+            radioButtonHP.Visibility = Visibility.Collapsed;
             radioButtonSingleModel.Visibility = Visibility.Collapsed;
             radioButtonCsvModel.Visibility = Visibility.Collapsed;
             modelNameTextBox.Visibility = Visibility.Collapsed;
             checkBoxFirmware.Visibility = Visibility.Collapsed;
+            searchButton.Visibility = Visibility.Collapsed;
+            resetButton.Visibility = Visibility.Visible; // Show reset button
         }
 
         private void RunPowerShellScript(string scriptName, string modelName, string downloadPath, string networkPath, string csvPath, bool includeFirmware)
         {
             string tempScriptPath = Path.Combine(Path.GetTempPath(), scriptName);
+            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "config.json");
 
             try
             {
@@ -150,10 +221,10 @@ namespace GUI2
                 File.WriteAllText(tempScriptPath, scriptContent, new UTF8Encoding(true)); // Ensure BOM
                 AppendOutput($"Script written to {tempScriptPath}");
 
-                string arguments = $"-NoProfile -ExecutionPolicy Bypass -File \"{tempScriptPath}\" -ModelName \"{modelName}\" -DownloadPath \"{downloadPath}\" -NetworkPath \"{networkPath}\"";
+                string arguments = $"-NoProfile -ExecutionPolicy Bypass -File \"{tempScriptPath}\" -ModelName \"{modelName}\" -DownloadPath \"{downloadPath}\" -NetworkPath \"{networkPath}\" -ConfigPath \"{configPath}\" -Option 1";
                 if (!string.IsNullOrEmpty(csvPath))
                 {
-                    arguments += $" -CsvPath \"{csvPath}\"";
+                    arguments = $"-NoProfile -ExecutionPolicy Bypass -File \"{tempScriptPath}\" -CsvPath \"{csvPath}\" -DownloadPath \"{downloadPath}\" -NetworkPath \"{networkPath}\" -ConfigPath \"{configPath}\" -Option 2";
                 }
                 if (includeFirmware)
                 {
@@ -164,7 +235,7 @@ namespace GUI2
 
                 ProcessStartInfo startInfo = new ProcessStartInfo()
                 {
-                    FileName = "powershell.exe",
+                    FileName = GetConfigValue("HP", "PowerShellExe"),
                     Arguments = arguments,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -174,21 +245,19 @@ namespace GUI2
                     CreateNoWindow = true
                 };
 
-                using (Process process = new Process() { StartInfo = startInfo })
+                powerShellProcess = new Process() { StartInfo = startInfo };
+                powerShellProcess.OutputDataReceived += (s, e) => AppendOutput(e.Data);
+                powerShellProcess.ErrorDataReceived += (s, e) => AppendOutput(e.Data);
+
+                powerShellProcess.Start();
+                powerShellProcess.BeginOutputReadLine();
+                powerShellProcess.BeginErrorReadLine();
+                powerShellProcess.WaitForExit();
+
+                AppendOutput($"Process exited with code: {powerShellProcess.ExitCode}");
+                if (powerShellProcess.ExitCode != 0)
                 {
-                    process.OutputDataReceived += (s, e) => AppendOutput(e.Data);
-                    process.ErrorDataReceived += (s, e) => AppendOutput(e.Data);
-
-                    process.Start();
-                    process.BeginOutputReadLine();
-                    process.BeginErrorReadLine();
-                    process.WaitForExit();
-
-                    AppendOutput($"Process exited with code: {process.ExitCode}");
-                    if (process.ExitCode != 0)
-                    {
-                        AppendOutput($"Error occurred while running PowerShell script. Exit code: {process.ExitCode}");
-                    }
+                    AppendOutput($"Error occurred while running PowerShell script. Exit code: {powerShellProcess.ExitCode}");
                 }
             }
             catch (Exception ex)
@@ -229,7 +298,7 @@ namespace GUI2
                     {
                         if (stream != null)
                         {
-                            using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
+                            using (StreamReader reader = new StreamReader(stream))
                             {
                                 return reader.ReadToEnd();
                             }
@@ -238,6 +307,68 @@ namespace GUI2
                 }
             }
             return null;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (powerShellProcess != null && !powerShellProcess.HasExited)
+            {
+                try
+                {
+                    powerShellProcess.Kill();
+                    powerShellProcess.WaitForExit();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error while closing PowerShell process: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                finally
+                {
+                    powerShellProcess.Dispose();
+                }
+            }
+        }
+
+        private async void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (powerShellProcess != null && !powerShellProcess.HasExited)
+            {
+                try
+                {
+                    powerShellProcess.Kill();
+                    await Task.Run(() => powerShellProcess.WaitForExit());
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error while terminating PowerShell process: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                finally
+                {
+                    powerShellProcess.Dispose();
+                    powerShellProcess = null;
+                }
+            }
+
+            // Reset UI elements to their default state
+            radioButtonLenovo.Visibility = Visibility.Visible;
+            radioButtonDell.Visibility = Visibility.Visible;
+            radioButtonHP.Visibility = Visibility.Visible;
+            radioButtonSingleModel.Visibility = Visibility.Visible;
+            radioButtonCsvModel.Visibility = Visibility.Visible;
+            modelNameTextBox.Visibility = Visibility.Visible;
+            checkBoxFirmware.Visibility = Visibility.Visible;
+            searchButton.Visibility = Visibility.Visible;
+            resetButton.Visibility = Visibility.Collapsed;
+            outputTextBox.Visibility = Visibility.Collapsed;
+
+            radioButtonLenovo.IsChecked = false;
+            radioButtonDell.IsChecked = false;
+            radioButtonHP.IsChecked = false;
+            radioButtonSingleModel.IsChecked = false;
+            radioButtonCsvModel.IsChecked = false;
+            modelNameTextBox.Text = "Syötä mallin nimi";
+            checkBoxFirmware.IsChecked = true;
+            outputTextBox.Clear();
         }
     }
 }

@@ -16,3 +16,25 @@ C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\GUI2.g.resources
 C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\GUI2.Properties.Resources.resources
 C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\DriverPack Fetcher.csproj.GenerateResource.cache
 C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\DriverPack Fetcher.csproj.CoreCompileInputs.cache
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\Resources\LenovoDriverPackCatalog.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\GUI2_Content.g.cs
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\Resources\config.json
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.Buffers.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.Memory.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.Numerics.Vectors.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.Text.Encodings.Web.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.Text.Json.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.Threading.Tasks.Extensions.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.ValueTuple.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\Microsoft.Bcl.AsyncInterfaces.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.Buffers.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.Memory.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.Numerics.Vectors.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.Text.Encodings.Web.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.Text.Json.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.Threading.Tasks.Extensions.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Debug\System.ValueTuple.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Debug\DriverPa.601E8470.Up2Date

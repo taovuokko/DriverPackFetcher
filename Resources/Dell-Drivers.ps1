@@ -2,9 +2,48 @@
     [string]$option,
     [string]$modelName,
     [string]$csvFilePath = "",
-    [string]$localPath
+    [string]$downloadPath,
+    [string]$networkPath,
+    [string]$configPath
 )
 
+# Function to read config from JSON file
+function Read-Config {
+    param (
+        [string]$configPath
+    )
+    if (Test-Path -Path $configPath) {
+        $config = Get-Content -Path $configPath -Raw | ConvertFrom-Json
+        return $config
+    } else {
+        throw "Configuration file not found: $configPath"
+    }
+}
+
+# Function to ensure a directory exists
+function Ensure-Directory {
+    param (
+        [string]$Path
+    )
+    if (-not (Test-Path -Path $Path)) {
+        try {
+            New-Item -ItemType Directory -Path $Path | Out-Null
+            Write-Host "Created directory: $Path"
+        } catch {
+            Write-Error "Error creating directory ${Path}: $_"
+        }
+    }
+}
+
+# Function to expand environment variables in a path
+function Expand-EnvironmentVariables {
+    param (
+        [string]$Path
+    )
+    return [System.Environment]::ExpandEnvironmentVariables($Path)
+}
+
+# Function to download and extract driver
 function Download-And-ExtractDriver {
     param (
         [string]$modelName,
@@ -30,18 +69,10 @@ function Download-And-ExtractDriver {
     }
 
     # Create download folder if it doesn't exist
-    if (-not (Test-Path -Path $downloadFolder)) {
-        Write-Host "Creating download folder: $downloadFolder"
-        New-Item -ItemType Directory -Path $downloadFolder -Force
-    }
+    Ensure-Directory -Path $downloadFolder
 
     # Create destination folder if it doesn't exist
-    if (-not (Test-Path -Path $destinationFolder)) {
-        Write-Host "Creating destination folder: $destinationFolder"
-        New-Item -ItemType Directory -Path $destinationFolder -Force
-    } else {
-        Write-Host "Destination folder already exists: $destinationFolder"
-    }
+    Ensure-Directory -Path $destinationFolder
 
     # Parse the XML file
     Write-Host "Parsing DriverPackCatalog.xml..."
@@ -166,20 +197,27 @@ function Main {
         [string]$option,
         [string]$modelName,
         [string]$csvFilePath = "",
-        [string]$localPath
+        [string]$downloadPath,
+        [string]$networkPath,
+        [string]$configPath
     )
 
     Write-Host "Starting Main function"
     Write-Host "Option: $option"
     Write-Host "Model name: $modelName"
     Write-Host "CSV file path: $csvFilePath"
-    Write-Host "Local path: $localPath"
+
+    # Read the config file
+    $config = Read-Config -configPath $configPath
+
+    # Expand environment variables in paths
+    $expandedNetworkPath = Expand-EnvironmentVariables $networkPath
 
     if ($option -eq "1") {
-        Download-And-ExtractDriver -modelName $modelName -localPath $localPath
+        Download-And-ExtractDriver -modelName $modelName -localPath $expandedNetworkPath
     }
     elseif ($option -eq "2") {
-        Process-ModelsFromCSV -csvFilePath $csvFilePath -localPath $localPath
+        Process-ModelsFromCSV -csvFilePath $csvFilePath -localPath $expandedNetworkPath
     }
     else {
         Write-Host "Invalid option. Please select a valid option."
@@ -188,4 +226,4 @@ function Main {
 }
 
 # Call the main function with provided arguments
-Main -option $option -modelName $modelName -csvFilePath $csvFilePath -localPath $localPath
+Main -option $option -modelName $modelName -csvFilePath $csvFilePath -downloadPath $downloadPath -networkPath $networkPath -configPath $configPath
