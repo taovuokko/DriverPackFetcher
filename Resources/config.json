@@ -1,18 +1,20 @@
 {
     "HP": {
         "LocalPath": "C:\\HP-Drivers",
-        "NetworkPath": "C:\\Users\\BSOD\\Documents\\LocalHP",
-        "PowerShellExe": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+        "NetworkPath": "C:\\HP-Network-Drivers",
+        "PowerShellExe": "%ProgramFiles%\\PowerShell\\7\\pwsh.exe",
         "DriverScriptName": "HP-Drivers.ps1"
     },
     "Lenovo": {
         "DriverScriptName": "Lenovo-Drivers.ps1",
-        "DownloadPath": "%USERPROFILE%\\Downloads\\.Lenovo",
-        "NetworkPath": "%USERPROFILE%\\Documents\\LocalLenovo"
+        "DownloadPath": "C:\\Lenovo-Drivers\\Downloads",
+        "NetworkPath": "C:\\Lenovo-Drivers\\Network",
+        "CatalogPath": ".\\Resources\\LenovoDriverPackCatalog.xml",
+        "DaysToRefresh": 40
     },
     "Dell": {
         "DriverScriptName": "Dell-Drivers.ps1",
-        "DownloadPath": "C:\\Path\\To\\Dell\\Downloads",
-        "NetworkPath": "%USERPROFILE%\\Documents\\LocalDell"
+        "DownloadPath": "C:\\Dell-Drivers\\Downloads",
+        "NetworkPath": "C:\\Dell-Drivers\\Network"
     }
 }

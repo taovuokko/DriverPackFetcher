@@ -38,3 +38,9 @@ C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Release\DriverPackFetcher.g.resources
 C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Release\DriverPa.601E8470.Up2Date
 C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Release\DriverPackFetcher.exe
 C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Release\DriverPackFetcher.pdb
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Release\SettingsWindow.g.cs
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Release\SettingsWindow.baml
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Release\DriverPackFetcher.exe.manifest
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Release\DriverPackFetcher.exe.manifest
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\Release\DriverPackFetcher.application
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\Release\DriverPackFetcher.application

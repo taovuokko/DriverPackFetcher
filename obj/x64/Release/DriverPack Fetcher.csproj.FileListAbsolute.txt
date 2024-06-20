@@ -1,0 +1,46 @@
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\Resources\config.json
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\Resources\Lenovo-Drivers.ps1
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\Resources\Dell-Drivers.ps1
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\Resources\DriverPackCatalog.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\Resources\LenovoDriverPackCatalog.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\DriverPackFetcher.exe.config
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\DriverPackFetcher.exe.manifest
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\DriverPackFetcher.application
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\DriverPackFetcher.exe
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\DriverPackFetcher.pdb
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.Buffers.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.Memory.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.Numerics.Vectors.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.Text.Encodings.Web.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.Text.Json.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.Threading.Tasks.Extensions.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.ValueTuple.dll
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\Microsoft.Bcl.AsyncInterfaces.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.Buffers.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.Memory.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.Numerics.Vectors.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.Runtime.CompilerServices.Unsafe.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.Text.Encodings.Web.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.Text.Json.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.Threading.Tasks.Extensions.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\bin\x64\Release\System.ValueTuple.xml
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\DriverPack Fetcher.csproj.AssemblyReference.cache
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\MainWindow.g.cs
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\SettingsWindow.g.cs
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\App.g.cs
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\DriverPackFetcher_Content.g.cs
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\DriverPackFetcher_MarkupCompile.cache
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\DriverPackFetcher_MarkupCompile.lref
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\MainWindow.baml
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\SettingsWindow.baml
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\DriverPackFetcher.g.resources
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\GUI2.Properties.Resources.resources
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\DriverPack Fetcher.csproj.GenerateResource.cache
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\DriverPack Fetcher.csproj.CoreCompileInputs.cache
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\DriverPackFetcher.exe.manifest
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\DriverPackFetcher.application
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\DriverPa.601E8470.Up2Date
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\DriverPackFetcher.exe
+C:\Users\BSOD\source\repos\GUI2\GUI2\obj\x64\Release\DriverPackFetcher.pdb

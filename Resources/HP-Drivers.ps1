@@ -89,15 +89,16 @@ function Get-HPPlatformIds {
     }
 }
 
-# Function to get latest supported OS version for the platform
-function Get-LatestOSVersion {
+# Function to get latest supported OS version for the platform and return the new folder path
+function Get-DriverPackFolderPath {
     param (
         [array]$platformIds,
-        [string]$localPath
+        [string]$localPath,
+        [ref]$result
     )
 
     try {
-        Write-Output "Searching for supported OS versions for platform IDs: $($platformIds -join ', ')..."
+        Write-Output "Searching for supported OS versions for platform IDs: $($platformIds -join ', ')..." | Out-Null
 
         $osOptions = @(
             @{ OS = "win11"; Versions = $windows11Versions },
@@ -110,28 +111,36 @@ function Get-LatestOSVersion {
                 $versions = $osOption.Versions
 
                 foreach ($version in $versions) {
-                    Write-Output "Trying OS version: $version for $os on platform ID: $platformId"
+                    Write-Output "Trying OS version: $version for $os on platform ID: $platformId" | Out-Null
 
                     try {
-                        Write-Host "Creating driver pack for platform ID: $platformId, OS: $os, Version: $version"
-
-                        New-HPDriverPack -Platform $platformId -OS $os -OSVer $version -Path $localPath
+                        Write-Host "Creating driver pack for platform ID: $platformId, OS: $os, Version: $version" | Out-Null
+                        New-HPDriverPack -Platform $platformId -OS $os -OSVer $version -Path $localPath | Out-Null
 
                         # Rename folder with model name
                         $downloadedFolderPath = Join-Path $localPath "DP$platformId"
                         $newFolderPath = Join-Path $localPath "$ModelName (DP$platformId)"
 
                         if (Test-Path $downloadedFolderPath) {
-                            Rename-Item -Path $downloadedFolderPath -NewName $newFolderPath -Force
-                            Write-Host "Folder renamed to: $newFolderPath"
+                            Rename-Item -Path $downloadedFolderPath -NewName $newFolderPath -Force | Out-Null
+                            Write-Host "Folder renamed to: $newFolderPath" | Out-Null
+
+                            # Create Firmware folder inside the driver pack path
+                            $firmwareFolderPath = Join-Path -Path $newFolderPath -ChildPath "Firmware"
+                            Write-Host "Trying to create Firmware folder at: $firmwareFolderPath" | Out-Null
+                            if (-not (Test-Path -Path $firmwareFolderPath)) {
+                                New-Item -Path $firmwareFolderPath -ItemType Directory | Out-Null
+                                Write-Host "Firmware folder created at: $firmwareFolderPath" | Out-Null
+                            }
+
+                            $result.Value = $newFolderPath  # Return the new folder path if successful
+                            return
                         } else {
                             Write-Error "Downloaded folder not found: $downloadedFolderPath"
                         }
-
-                        return $newFolderPath  # Return the new folder path if successful
                     } catch {
                         Write-Error $_.Exception.Message
-                        Write-Host "Failed to create driver pack for OS version: $version"
+                        Write-Host "Failed to create driver pack for OS version: $version" | Out-Null
                     }
                 }
             }
@@ -148,47 +157,48 @@ function Get-LatestOSVersion {
 function Download-BIOSUpdates {
     param (
         [string]$modelName,
-        [string]$localPath,
         [string]$driverPackPath
     )
 
-    # Create BIOS folder inside the download path
-    $biosFolderPath = Join-Path -Path $localPath -ChildPath "BIOS"
-    if (-not (Test-Path -Path $biosFolderPath)) {
-        New-Item -Path $biosFolderPath -ItemType Directory
+    # Debugging output
+    Write-Host "Inside Download-BIOSUpdates function" | Out-Null
+    Write-Host "driverPackPath: $driverPackPath" | Out-Null
+    
+    # Define Firmware folder path inside the driver pack path
+    $firmwareFolderPath = Join-Path -Path $driverPackPath -ChildPath "Firmware"
+    Write-Host "Firmware folder path: $firmwareFolderPath" | Out-Null
+    
+    if (-not (Test-Path -Path $firmwareFolderPath)) {
+        New-Item -Path $firmwareFolderPath -ItemType Directory | Out-Null
+        Write-Host "Created Firmware folder at: $firmwareFolderPath" | Out-Null
     }
 
-    Write-Host "Downloading BIOS updates to: $biosFolderPath"
+    Write-Host "Downloading BIOS updates to: $firmwareFolderPath" | Out-Null
 
     try {
         $deviceDetails = Get-HPDeviceDetails -Name $modelName -Like "*"
-        if (-not $deviceDetails) {
+        if ($deviceDetails -eq $null) {
             throw "Details not found for model: $modelName"
         }
 
         $systemIds = $deviceDetails.SystemID
 
         foreach ($systemId in $systemIds) {
-            Write-Host "Attempting to download BIOS updates for System ID: $systemId"
+            Write-Host "Attempting to download BIOS updates for System ID: $systemId" | Out-Null
 
             try {
-                $updates = Get-SoftpaqList -Platform $systemId -Category "BIOS" -Download -DownloadDirectory $biosFolderPath
-                Write-Host "BIOS updates downloaded successfully for System ID: $systemId."
-
-                # Move the BIOS folder to the driver pack path
-                $destinationBiosPath = Join-Path -Path $driverPackPath -ChildPath "BIOS"
-                if (Test-Path -Path $biosFolderPath) {
-                    Move-Item -Path $biosFolderPath -Destination $destinationBiosPath -Force
-                    Write-Host "BIOS folder moved to: $destinationBiosPath"
-                } else {
-                    Write-Error "BIOS folder not found at: $biosFolderPath"
-                }
+                $updates = Get-SoftpaqList -Platform $systemId -Category "BIOS" -Download -DownloadDirectory $firmwareFolderPath | Out-Null
+                
+                # Debugging output
+                Write-Host "Running command: Get-SoftpaqList -Platform $systemId -Category 'BIOS' -Download -DownloadDirectory $firmwareFolderPath" | Out-Null
+                
+                Write-Host "BIOS updates downloaded successfully for System ID: $systemId." | Out-Null
             } catch {
-                Write-Error "Failed to download BIOS updates for System ID: $systemId. Error: $_"
+                Write-Error "Failed to download BIOS updates for System ID: $systemId. Error: $_" | Out-Null
             }
         }
     } catch {
-        Write-Error "Failed to download BIOS updates: $_"
+        Write-Error "Failed to download BIOS updates: $_" | Out-Null
     }
 }
 
@@ -201,32 +211,33 @@ function Process-ModelsFromCSV {
     )
 
     try {
-        Write-Host "Reading CSV file: $csvPath"
+        Write-Host "Reading CSV file: $csvPath" | Out-Null
         $models = Import-Csv -Path $csvPath | Select-Object -ExpandProperty Model
 
         if ($models.Count -eq 0) {
-            Write-Host "No models found in CSV file."
+            Write-Host "No models found in CSV file." | Out-Null
             return
         }
 
         foreach ($model in $models) {
-            Write-Host "Processing model: $model"
+            Write-Host "Processing model: $model" | Out-Null
             $platformIds = Get-HPPlatformIds -modelName $model
-            $driverPackPath = Get-LatestOSVersion -platformIds $platformIds -localPath $localPath
+            $result = [ref]$null
+            Get-DriverPackFolderPath -platformIds $platformIds -localPath $localPath -result $result
 
             if ($includeFirmware) {
-                Download-BIOSUpdates -modelName $model -localPath $localPath -driverPackPath $driverPackPath
+                Download-BIOSUpdates -modelName $model -driverPackPath $result.Value
             }
         }
     } catch {
-        Write-Error "Failed to process models from CSV: $_"
+        Write-Error "Failed to process models from CSV: $_" | Out-Null
     }
 }
 
 # Main script logic
-Ensure-PowerShell7
-Check-And-Install-PowerShellGet
-Check-And-Install-HPCMSL
+Ensure-PowerShell7 | Out-Null
+Check-And-Install-PowerShellGet | Out-Null
+Check-And-Install-HPCMSL | Out-Null
 
 $localPath = $config.HP.LocalPath
 
@@ -234,9 +245,18 @@ if ($CsvPath) {
     Process-ModelsFromCSV -csvPath $CsvPath -localPath $localPath -includeFirmware:$IncludeFirmware
 } else {
     $platformIds = Get-HPPlatformIds -modelName $ModelName
-    $driverPackPath = Get-LatestOSVersion -platformIds $platformIds -localPath $localPath
+    $result = [ref]$null
+    Get-DriverPackFolderPath -platformIds $platformIds -localPath $localPath -result $result
+
+    Write-Host "Final driverPackPath before validation: $result.Value"
+
+    # Debugging output
+    if ($result.Value -like "*Searching for supported OS versions for platform IDs*") {
+        Write-Host "ERROR: driverPackPath contains invalid value"
+        exit 1
+    }
 
     if ($IncludeFirmware) {
-        Download-BIOSUpdates -modelName $ModelName -localPath $localPath -driverPackPath $driverPackPath
+        Download-BIOSUpdates -modelName $ModelName -driverPackPath $result.Value
     }
 }

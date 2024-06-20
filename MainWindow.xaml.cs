@@ -15,29 +15,35 @@ namespace GUI2
     public partial class MainWindow : Window
     {
         private Process powerShellProcess;
-        private JsonElement config;
+        private ConfigModels config;
 
         public MainWindow()
         {
             InitializeComponent();
             this.Closing += new System.ComponentModel.CancelEventHandler(Window_Closing);
             LoadConfiguration();
+            SetupConfigurationWatcher();
         }
 
-        private void LoadConfiguration()
+        private string configPath; // Globaali muuttuja konfiguraation polulle
+
+        public void LoadConfiguration()
         {
+            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string appFolderPath = Path.Combine(appDataPath, "DriverPackFetcher");
+            configPath = Path.Combine(appFolderPath, "config.json");
+
+            if (!File.Exists(configPath))
+            {
+                configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "config.json");
+            }
+
             try
             {
-                string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "config.json");
-                if (!File.Exists(configPath))
-                {
-                    throw new FileNotFoundException("Configuration file not found.", configPath);
-                }
-
                 string json = File.ReadAllText(configPath);
-                config = JsonSerializer.Deserialize<JsonElement>(json);
+                config = JsonSerializer.Deserialize<ConfigModels>(json);
 
-                if (config.ValueKind == JsonValueKind.Undefined || config.ValueKind == JsonValueKind.Null)
+                if (config == null)
                 {
                     throw new Exception("Failed to deserialize configuration file.");
                 }
@@ -45,22 +51,55 @@ namespace GUI2
             catch (Exception ex)
             {
                 MessageBox.Show($"Error loading configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Application.Current.Shutdown();
+            }
+        }
+
+        private FileSystemWatcher configWatcher;
+
+        private void SetupConfigurationWatcher()
+        {
+            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string appFolderPath = Path.Combine(appDataPath, "DriverPackFetcher");
+
+            configWatcher = new FileSystemWatcher(appFolderPath, "config.json")
+            {
+                NotifyFilter = NotifyFilters.LastWrite
+            };
+
+            configWatcher.Changed += OnConfigurationChanged;
+            configWatcher.EnableRaisingEvents = true;
+        }
+
+        private void OnConfigurationChanged(object sender, FileSystemEventArgs e)
+        {
+            // Ensure we handle only single event.
+            configWatcher.EnableRaisingEvents = false;
+            try
+            {
+                // This delay ensures that file is fully released by another process.
+                Task.Delay(500).Wait();
+                LoadConfiguration();
+            }
+            finally
+            {
+                configWatcher.EnableRaisingEvents = true;
             }
         }
 
         private string GetConfigValue(string section, string key)
         {
-            if (config.TryGetProperty(section, out JsonElement sectionElement) && sectionElement.TryGetProperty(key, out JsonElement value))
+            var sectionProperty = typeof(ConfigModels).GetProperty(section);
+            if (sectionProperty != null)
             {
-                switch (value.ValueKind)
+                var sectionValue = sectionProperty.GetValue(config);
+                if (sectionValue != null)
                 {
-                    case JsonValueKind.String:
-                        return value.GetString();
-                    case JsonValueKind.Number:
-                        return value.GetInt32().ToString();
-                    default:
-                        throw new Exception($"Configuration key '{key}' found in section '{section}' but is not a valid type.");
+                    var keyProperty = sectionValue.GetType().GetProperty(key);
+                    if (keyProperty != null)
+                    {
+                        var value = keyProperty.GetValue(sectionValue);
+                        return value?.ToString();
+                    }
                 }
             }
             throw new Exception($"Configuration key '{key}' not found in section '{section}'.");
@@ -186,6 +225,16 @@ namespace GUI2
             await Task.Run(() => RunPowerShellScript(driverScriptName, modelName, driverDownloadPath, networkPath, csvPath, includeFirmware));
         }
 
+        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Luodaan uusi instanssi SettingsWindow-luokasta
+            SettingsWindow settingsWindow = new SettingsWindow();
+
+            // Näytetään SettingsWindow käyttäjälle.
+            // Käytä ShowDialog()m ikkuna on modaali (käyttäjä ei voi käyttää muita sovelluksen ikkunoita ennen tämän sulkemista).
+
+            settingsWindow.ShowDialog();
+        }
 
         private void HideInputElements()
         {
@@ -197,13 +246,14 @@ namespace GUI2
             modelNameTextBox.Visibility = Visibility.Collapsed;
             checkBoxFirmware.Visibility = Visibility.Collapsed;
             searchButton.Visibility = Visibility.Collapsed;
+            settingsButton.Visibility = Visibility.Collapsed; // Hide settings button
             resetButton.Visibility = Visibility.Visible; // Show reset button
+            outputTextBox.Visibility = Visibility.Visible; // Show output text box
         }
 
         private void RunPowerShellScript(string scriptName, string modelName, string downloadPath, string networkPath, string csvPath, bool includeFirmware)
         {
             string tempScriptPath = Path.Combine(Path.GetTempPath(), scriptName);
-            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "config.json");
 
             try
             {
@@ -211,14 +261,14 @@ namespace GUI2
 
                 if (string.IsNullOrEmpty(scriptContent))
                 {
-                    Dispatcher.Invoke(() =>
-                    {
-                        MessageBox.Show("Script content is empty or not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    });
+                    MessageBox.Show("Script content is empty or not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                File.WriteAllText(tempScriptPath, scriptContent, new UTF8Encoding(true)); // Ensure BOM
+                using (StreamWriter writer = new StreamWriter(tempScriptPath, false, new UTF8Encoding(true))) // Ensure BOM
+                {
+                    writer.Write(scriptContent);
+                }
                 AppendOutput($"Script written to {tempScriptPath}");
 
                 string arguments = $"-NoProfile -ExecutionPolicy Bypass -File \"{tempScriptPath}\" -ModelName \"{modelName}\" -DownloadPath \"{downloadPath}\" -NetworkPath \"{networkPath}\" -ConfigPath \"{configPath}\" -Option 1";
@@ -233,31 +283,33 @@ namespace GUI2
 
                 AppendOutput($"Running script with arguments: {arguments}");
 
-                ProcessStartInfo startInfo = new ProcessStartInfo()
+                using (Process powerShellProcess = new Process())
                 {
-                    FileName = GetConfigValue("HP", "PowerShellExe"),
-                    Arguments = arguments,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    StandardOutputEncoding = Encoding.UTF8,
-                    StandardErrorEncoding = Encoding.UTF8,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
+                    powerShellProcess.StartInfo = new ProcessStartInfo()
+                    {
+                        FileName = "powershell.exe", // Example path to PowerShell executable
+                        Arguments = arguments,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        StandardOutputEncoding = Encoding.UTF8,
+                        StandardErrorEncoding = Encoding.UTF8,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
 
-                powerShellProcess = new Process() { StartInfo = startInfo };
-                powerShellProcess.OutputDataReceived += (s, e) => AppendOutput(e.Data);
-                powerShellProcess.ErrorDataReceived += (s, e) => AppendOutput(e.Data);
+                    powerShellProcess.OutputDataReceived += (s, e) => AppendOutput(e.Data);
+                    powerShellProcess.ErrorDataReceived += (s, e) => AppendOutput(e.Data);
 
-                powerShellProcess.Start();
-                powerShellProcess.BeginOutputReadLine();
-                powerShellProcess.BeginErrorReadLine();
-                powerShellProcess.WaitForExit();
+                    powerShellProcess.Start();
+                    powerShellProcess.BeginOutputReadLine();
+                    powerShellProcess.BeginErrorReadLine();
+                    powerShellProcess.WaitForExit();
 
-                AppendOutput($"Process exited with code: {powerShellProcess.ExitCode}");
-                if (powerShellProcess.ExitCode != 0)
-                {
-                    AppendOutput($"Error occurred while running PowerShell script. Exit code: {powerShellProcess.ExitCode}");
+                    AppendOutput($"Process exited with code: {powerShellProcess.ExitCode}");
+                    if (powerShellProcess.ExitCode != 0)
+                    {
+                        AppendOutput($"Error occurred while running PowerShell script. Exit code: {powerShellProcess.ExitCode}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -324,7 +376,8 @@ namespace GUI2
                 }
                 finally
                 {
-                    powerShellProcess.Dispose();
+                    powerShellProcess?.Dispose();
+                    powerShellProcess = null;
                 }
             }
         }
@@ -344,11 +397,16 @@ namespace GUI2
                 }
                 finally
                 {
-                    powerShellProcess.Dispose();
+                    powerShellProcess?.Dispose();
                     powerShellProcess = null;
                 }
             }
 
+            ResetUI();
+        }
+
+        private void ResetUI()
+        {
             // Reset UI elements to their default state
             radioButtonLenovo.Visibility = Visibility.Visible;
             radioButtonDell.Visibility = Visibility.Visible;
@@ -358,6 +416,7 @@ namespace GUI2
             modelNameTextBox.Visibility = Visibility.Visible;
             checkBoxFirmware.Visibility = Visibility.Visible;
             searchButton.Visibility = Visibility.Visible;
+            settingsButton.Visibility = Visibility.Visible; // Show settings button
             resetButton.Visibility = Visibility.Collapsed;
             outputTextBox.Visibility = Visibility.Collapsed;
 
@@ -370,5 +429,6 @@ namespace GUI2
             checkBoxFirmware.IsChecked = true;
             outputTextBox.Clear();
         }
+
     }
 }

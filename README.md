@@ -1,6 +1,6 @@
 # Driver and Firmware Download Utility
 
-This project provides a PowerShell-based utility for downloading and managing drivers and firmware for Dell, Lenovo, and HP devices. The current implementation supports Dell, Lenovo, and HP, with plans to add more manufacturers in future versions. **Please note that this project is currently in the pre-alpha stage.**
+This project provides a WPF-based GUI utility for downloading and managing driver packs and firmware (BIOS). The core functionality is powered by PowerShell scripts, handling the actual downloading and management tasks. The current implementation supports Dell, Lenovo, and HP. **Please note that this project is currently in the alpha stage.**
 
 ## Features
 - **Dell Drivers Download**: Automates the process of finding and downloading the latest drivers for Dell models.
@@ -15,11 +15,13 @@ This project provides a PowerShell-based utility for downloading and managing dr
 - `HP-Drivers.ps1`: PowerShell script to download drivers and BIOS updates for HP devices.
 - `MainWindow.xaml`: XAML file defining the GUI layout.
 - `MainWindow.xaml.cs`: C# code-behind for handling GUI logic.
-- `config.json`: JSON configuration file containing paths and settings for future use.
-
+- `config.json`: JSON configuration file containing paths and settings.
+  
 ### GUI:
 - Open the solution in Visual Studio.
-- Build and run the project to use the GUI for managing downloads.
+- Build and run the project to use the GUI for managing downloads, or use the MSI installer.
+- Use the **Settings Menu** to customize download paths and other configurations. These settings are saved in the `config.json` file for future use.
+
 
 ## Future Plans
 - Add support for more manufacturers.

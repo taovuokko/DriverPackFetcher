@@ -7,11 +7,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("GUI2")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("DriverPackFetcher")]
+[assembly: AssemblyDescription("Effortlessly fetch driver packs and firmware updates, even in mass.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("GUI2")]
+[assembly: AssemblyCompany("T. Vuokko")]
+[assembly: AssemblyProduct("DriverPackFetcher")]
 [assembly: AssemblyCopyright("Copyright ©  2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
